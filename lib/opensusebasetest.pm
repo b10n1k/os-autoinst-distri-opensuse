@@ -1003,6 +1003,7 @@ sub post_fail_hook {
     # Find out in post-fail-hook if system is I/O-busy, poo#35877
     else {
         select_console 'log-console';
+	type_string "echo postfail in opensusebasetest > /dev/$testapi::serialdev\n";
         my $io_status = script_output("sed -n 's/^.*da / /p' /proc/diskstats | cut -d' ' -f10");
         record_info('System I/O status:', ($io_status =~ /^0$/) ? 'idle' : 'busy');
     }

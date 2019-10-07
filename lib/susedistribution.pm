@@ -656,6 +656,32 @@ sub console_nr {
     return $nr;
 }
 
+=head2 remote_console_switch
+
+    remote_console_switch($console, $nr)
+
+Requires C<console> name, an actual VT number C<nr> is optional.
+=cut
+sub remote_console_switch {
+    my ($self) = @_;
+
+     
+     if (get_var('CONSOLE_JUST_ACTIVATED') == 0) {
+    	#set_var('CONSOLE_JUST_ACTIVATED', 1);
+    	return;
+     }
+    type_string "echo SOSOSOSOSOS remote_control_switch > /dev/$testapi::serialdev\n";
+    #if ($testapi::username != 'root') { return; }
+    #my $remote_ip = get_var('TARGET_IP');
+    #my $passwd    = get_var('PASSWD');
+    #select_console 'root-console';
+    $self->script_run("ssh -o StrictHostKeyChecking=no -l root 10.0.2.15");
+    assert_screen 'password-prompt';
+    type_password;
+    type_string "nots3cr3t\n";
+    assert_screen "remote-ssh-login-ok";
+}
+
 =head2 activate_console
 
   activate_console($console [, [ensure_tty_selected => 0|1, ] [skip_set_standard_prompt => 0|1, ] [skip_setterm => 0|1, ]])
@@ -688,8 +714,8 @@ sub activate_console {
         }
     }
 
-    $console =~ m/^(\w+)-(console|virtio-terminal|sut-serial|ssh|shell)/;
-    my ($name, $user, $type) = ($1, $1, $2);
+    $console =~ m/^(\w+)-(console|virtio-terminal|sut-serial|ssh|shell)/; #bk1
+    my ($name, $user, $type) = ($1, $1, $2); #name/user=root type=console
     $name = $user //= '';
     $type //= '';
     if ($name eq 'user') {
@@ -700,17 +726,18 @@ sub activate_console {
     }
 
     diag "activate_console, console: $console, type: $type";
-    if ($type eq 'console') {
+    if ($type eq 'console') {                                               #true type is console
         # different handling for ssh consoles on s390x zVM
-        if (get_var('BACKEND', '') =~ /ipmi|s390x|spvm/ || get_var('S390_ZKVM')) {
+        if (get_var('BACKEND', '') =~ /ipmi|s390x|spvm/ || get_var('S390_ZKVM')) {   #skip
             diag 'backend ipmi || spvm || s390x || zkvm';
             $user ||= 'root';
             handle_password_prompt;
             ensure_user($user);
         }
-        else {
-            my $nr = console_nr($console);
+        else {                                                                           
+            my $nr = console_nr($console);                           #bk2 should find ourself in
             $self->hyperv_console_switch($console, $nr);
+	    
             my @tags = ("tty$nr-selected", "text-logged-in-$user");
             # s390 zkvm uses a remote ssh session which is root by default so
             # search for that and su to user later if necessary
@@ -724,14 +751,18 @@ sub activate_console {
             if (match_has_tag("tty$nr-selected")) {
                 type_string "$user\n";
                 handle_password_prompt;
+		
             }
             elsif (match_has_tag('text-logged-in-root')) {
                 ensure_user($user);
             }
-        }
+	   
+        }                                                                                       #bk3 should have been login as root
         assert_screen "text-logged-in-$user";
         $self->set_standard_prompt($user, skip_set_standard_prompt => $args{skip_set_standard_prompt});
         assert_screen $console;
+	#type_string "echo ASOSOSOSOSOS > /dev/$testapi::serialdev\n";
+	$self->remote_console_switch() if get_var('REMOTE_CONTROLLER') == 'ssh';                                                     # ssh to the target if ssh/vnc
     }
     elsif ($type =~ /^(virtio-terminal|sut-serial)$/) {
         serial_terminal::login($user, $self->{serial_term_prompt});

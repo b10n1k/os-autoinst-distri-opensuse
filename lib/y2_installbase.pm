@@ -9,6 +9,7 @@ use network_utils;
 use version_utils qw(is_caasp is_sle);
 use y2_logs_helper 'get_available_compression';
 use utils 'zypper_call';
+use Utils::Backends 'use_ssh_serial_console';
 
 sub use_wicked {
     script_run "cd /proc/sys/net/ipv4/conf";
@@ -57,7 +58,7 @@ sub get_to_console {
         # We ended up somewhere else, still in a phase we consider yast running
         # (e.g. livecdrerboot did not see a grub screen and booted through to an installed system)
         # so we try to perform a login on TTY2 and export yast logs
-        select_console('root-console');
+	select_console('root-console');
     }
 }
 
@@ -174,7 +175,7 @@ sub save_upload_y2logs {
     # Do not test/recover network if collect from installation system, as it won't work anyway with current approach
     # Do not recover network on non-qemu backend, as not implemented yet
     $args{no_ntwrk_recovery} //= (get_var('BACKEND') !~ /qemu/);
-
+    
     # Try to recover network if cannot reach gw and upload logs if everything works
     if (can_upload_logs() || (!$args{no_ntwrk_recovery} && recover_network())) {
         assert_script_run 'sed -i \'s/^tar \(.*$\)/tar --warning=no-file-changed -\1 || true/\' /usr/sbin/save_y2logs';
@@ -206,7 +207,6 @@ sub save_remote_upload_y2logs {
     my $upname     = ($args{log_name} || $autotest::current_test->{name}) . '-' . $uploadname;
     type_string "curl --form upload=\@$filename --form upname=$upname " . autoinst_url("/uploadlog/$upname") . "\n";
     save_screenshot();
-    $self->investigate_yast2_failure();
 }
 
 sub save_system_logs {
@@ -302,7 +302,9 @@ sub post_fail_hook {
     }
     else {
         $self->SUPER::post_fail_hook;
+	type_string "echo YSOSOSOSOSOS > /dev/$testapi::serialdev\n";
         get_to_console;
+	$testapi::serialdev = "pts/0";
         $self->detect_bsc_1063638;
         $self->get_ip_address;
         $self->remount_tmp_if_ro;
