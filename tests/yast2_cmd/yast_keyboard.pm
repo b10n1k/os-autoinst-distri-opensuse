@@ -45,17 +45,17 @@ sub run {
 
     # Set keyboard layout to german.
     assert_script_run("yast keyboard set layout=german");
-
+    record_info "after german";
     # Restore keyboard settings to english-us and verify(enter using german characters).
-    if (is_sle('15-sp2+')) {
-        type_string("zast kezboard set lazout)english/us\n", wait_still_screen => 3, timeout => 7);
-    }
-    else {
-        record_soft_failure('bsc#1170292');
-        type_string("zast kezboard set lazout)english/us\n", wait_still_screen => 60, timeout => 130);
-    }
-    save_screenshot;
-
+    #if (is_sle('15-sp2+')) {
+        type_string("zast kezboard set lazout)english/us\n", wait_still_screen => 5, timeout => 10);
+    #}
+    #else {
+    #    record_soft_failure('bsc#1170292');
+    #    type_string("zast kezboard set lazout)english/us\n", wait_still_screen => 60, timeout => 130);
+    #}
+    #save_screenshot;
+    script_run 'yast keyboard summary';
     validate_script_output("yast keyboard summary 2>&1", sub { m/english-us/ }, timeout => 90);
 
 }
