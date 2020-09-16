@@ -66,7 +66,7 @@ sub verify_multipath_configuration {
     record_info('configuration', 'Verify multipath configuration with multipath tool');
     my $conf_output = script_output("multipath -t");
     while (my ($k, $v) = each(%{$test_data->{attributes}})) {
-        assert_matches(qr/$k\s"?$v"?/, $conf_output, "Multipath attribute '$k $v' not found");
+        assert_matches(qr/$k\s$v/, $conf_output, "Multipath attribute '$k $v' not found");
     }
 }
 

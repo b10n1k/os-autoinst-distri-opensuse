@@ -81,9 +81,9 @@ test_data:
           status: active
           paths:
             - name: sda
-              status: 'active ready running'
+              status: active ready running
         - prio: 1
           status: enabled
           paths:
             - name: sdb
-              status: 'active ready running'
+              status: active ready running
