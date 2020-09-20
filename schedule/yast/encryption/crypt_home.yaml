@@ -1,0 +1,29 @@
+---
+description: >
+  Conduct installation with encrypted home partition.
+name: crypt_home
+schedule:
+  - installation/bootloader_start
+  - installation/welcome
+  - installation/accept_license
+  - installation/scc_registration
+  - installation/addon_products_sle
+  - installation/system_role
+  - installation/partitioning
+  - installation/partitioning/separate_home
+  - installation/partitioning_finish
+  - installation/installer_timezone
+  - installation/user_settings
+  - installation/user_settings_root
+  - installation/installation_overview
+  - installation/disable_grub_timeout
+  - installation/start_install
+  - installation/await_install
+  - installation/logs_from_installation_system
+  - installation/reboot_after_installation
+  - installation/grub_test
+  - installation/decrypt_disks
+  - installation/first_boot
+  - console/validate_encrypt
+  - shutdown/cleanup_before_shutdown
+  - shutdown/shutdown

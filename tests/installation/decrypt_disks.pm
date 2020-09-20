@@ -15,20 +15,22 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, see <http://www.gnu.org/licenses/>.
 
-# Summary: The test module to select encryption for the home partition
-# with current suggested Partitioning wizard,
+# Summary: Module to descrypt encrypted disk
 # Maintainer: QA SLE YaST team <qa-sle-yast@suse.de>
 
-use parent 'y2_installbase';
 use strict;
-use warnings FATAL => 'all';
-use scheduler 'get_test_suite_data';
+use warnings;
+use base "installbasetest";
+use utils;
+use testapi;
 
 sub run {
-    my $test_data   = get_test_suite_data();
-    my $partitioner = $testapi::distri->get_expert_partitioner();
-    $partitioner->run_expert_partitioner($test_data->{partitioner_proposal});
-    $partitioner->encrypt_partition($test_data);
+    assert_screen("encrypted-disk-password-prompt", 200);
+    type_password;
+    save_screenshot;
+    assert_screen 'encrypted_disk-typed_password';
+    send_key "ret";
 }
 
 1;
+
