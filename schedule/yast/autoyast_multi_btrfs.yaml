@@ -37,7 +37,7 @@ test_data:
     partitioning:
       - drive:
           unique_key: device
-          device: /dev/vda
+          device: /dev/sda
           disklabel: gpt
           partitions:
             - partition:
