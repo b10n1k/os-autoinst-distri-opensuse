@@ -24,7 +24,7 @@ test_data:
     - mount_point: /
       label: root_multi_btrfs
       devices:
-        - /dev/vda2
+        - /dev/sda2
         - /dev/vdb1
     - mount_point: /test
       label: test_multi_btrfs
