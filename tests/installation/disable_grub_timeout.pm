@@ -19,7 +19,7 @@ use warnings;
 use base 'y2_installbase';
 use testapi;
 use utils;
-use version_utils qw(is_sle is_leap is_upgrade);
+use version_utils qw(is_sle is_leap is_upgrade is_ppc64le);
 
 sub run {
     my ($self) = shift;
@@ -31,12 +31,20 @@ sub run {
         # Select section booting on Installation Settings overview on text mode
         send_key $cmd{change};
         assert_screen 'inst-overview-options';
-        is_upgrade() ? send_key 'alt-t' : send_key 'alt-b';
+        
+        #else {
+            is_upgrade() ? send_key 'alt-t' : send_key 'alt-b';
+        #}
     }
     else {
+	if (is_ppc64le) {
+            send_key 'alt-l';
+        }
+	else {
         # Select section booting on Installation Settings overview (video mode)
         send_key_until_needlematch 'booting-section-selected', 'tab';
         send_key 'ret';
+	}
     }
 
     # Config bootloader is not be supported during an upgrade

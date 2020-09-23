@@ -44,6 +44,7 @@ use constant {
           is_released
           is_rt
           is_hpc
+          is_ppc64le
           is_staging
           is_storage_ng
           is_using_system_role
@@ -410,6 +411,14 @@ Returns true if system is aarch64 with uefi and shall boot an hdd image
 =cut
 sub is_aarch64_uefi_boot_hdd {
     return get_var('MACHINE') =~ /aarch64/ && get_var('UEFI') && get_var('BOOT_HDD_IMAGE');
+}
+
+=head2 is_ppc64le
+
+Returns true if system is ppc64le
+=cut
+sub is_ppc64le {
+    return get_var('ARCH') =~ /ppc64le/;
 }
 
 =head2 is_server
