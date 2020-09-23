@@ -410,6 +410,14 @@ sub is_aarch64_uefi_boot_hdd {
     return get_var('MACHINE') =~ /aarch64/ && get_var('UEFI') && get_var('BOOT_HDD_IMAGE');
 }
 
+=head2 is_ppc64le
+
+Returns true if system is ppc64le
+=cut
+sub is_ppc64le {
+    return get_var('ARCH') =~ /ppc64le/;
+}
+
 =head2 is_server
 
 Returns true if executed on a server pattern, SLES4SAP or SLES4MIGRATION
