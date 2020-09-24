@@ -27,7 +27,7 @@ use version_utils 'is_sle';
 use registration qw(scc_version get_addon_fullname);
 use File::Copy 'copy';
 use File::Path 'make_path';
-use LWP::Simple 'head';
+use LWP::Simple;
 
 use xml_utils;
 
@@ -449,6 +449,7 @@ sub expand_variables {
         my $tarfile = data_url(get_var 'SALT_FORMULAS_PATH');
         $profile =~ s/\{\{SALT_FORMULAS_PATH\}\}/$tarfile/g;
     }
+    
     for my $var (@vars) {
         # Skip if value is not defined
         next unless my ($value) = get_var($var);
@@ -521,13 +522,23 @@ EOF
 
 =cut
 sub test_ayp_url {
+    use HTTP::Status qw(:constants status_message);
     my $ayp_url = get_var('AUTOYAST');
+    my $mojo_daemon_srv_status;
+    my $times = 3;
     if ($ayp_url =~ /^http/) {
-        if (head($ayp_url)) {
+	do {
+	    $mojo_daemon_srv_status = getprint('http://10.0.2.2:20043/l1CrTY0QXrNcufch/files/autoyast_opensuse/autoyast_multi_btrfs.xml');
+	    record_info($times);
+	    $times--;
+	} while ($times > 0);
+	if ($mojo_daemon_srv_status == HTTP_OK) {
             record_info("ayp url ok", "Autoyast profile url $ayp_url is reachable");
         } else {
-            record_info("Failure", "Autoyast profile url $ayp_url is unreachable");
+	    #die "boom";
+            record_info("Failure", "$mojo_daemon_srv_status " . status_message($mojo_daemon_srv_status), result=>'fail');
         }
+
     }
 }
 1;
