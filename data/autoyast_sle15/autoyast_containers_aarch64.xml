@@ -47,32 +47,59 @@
   <partitioning config:type="list">
     <drive>
       <device>/dev/vda</device>
-      <disklabel>gpt</disklabel>
+      <disklabel>msdos</disklabel>
       <initialize config:type="boolean">true</initialize>
       <partitions config:type="list">
         <partition>
           <mountby config:type="symbol">device</mountby>
-          <create config:type="boolean">true</create>
-          <filesystem config:type="symbol">vfat</filesystem>
-          <format config:type="boolean">true</format>
-          <fstopt>umask=0002,utf8=true</fstopt>
-          <mount>/boot/efi</mount>
-        </partition>
-        <partition>
-          <mountby config:type="symbol">device</mountby>
-          <create config:type="boolean">true</create>
           <filesystem config:type="symbol">swap</filesystem>
-          <format config:type="boolean">true</format>
-          <fstopt>defaults</fstopt>
           <mount>swap</mount>
         </partition>
+        
         <partition>
           <mountby config:type="symbol">device</mountby>
+          <filesystem config:type="symbol">btrfs</filesystem>
+          <mount>/</mount>
+          <subvolumes config:type="list">
+            <subvolume>
+              <copy_on_write config:type="boolean">true</copy_on_write>
+              <path>opt</path>
+            </subvolume>
+            <subvolume>
+              <copy_on_write config:type="boolean">false</copy_on_write>
+              <path>tmp</path>
+            </subvolume>
+            <subvolume>
+              <path>usr/local</path>
+            </subvolume>
+            <subvolume>
+              <path>home</path>
+            </subvolume>
+            <subvolume>
+              <path>srv</path>
+            </subvolume>
+            <subvolume>
+              <path>boot/grub2/x86_64-efi</path>
+            </subvolume>
+            <subvolume>
+              <path>boot/grub2/x86_64-i386-pc</path>
+            </subvolume>
+          </subvolumes>
+          <!-- Create empty prefix, see bsc#1090095 -->
+          <subvolumes_prefix>@</subvolumes_prefix>
+        </partition>
+        <partition>
           <create config:type="boolean">true</create>
+          <crypt_fs config:type="boolean">false</crypt_fs>
           <filesystem config:type="symbol">btrfs</filesystem>
           <format config:type="boolean">true</format>
-          <fstopt>defaults</fstopt>
-          <mount>/</mount>
+          <fstopt>rw,relatime,nobarrier,nodatacow</fstopt>
+          <loop_fs config:type="boolean">false</loop_fs>
+          <mount>/var</mount>
+          <mountby config:type="symbol">uuid</mountby>
+          <partition_id config:type="integer">131</partition_id>
+          <partition_nr config:type="integer">2</partition_nr>
+          <resize config:type="boolean">false</resize>
         </partition>
       </partitions>
       <use>all</use>
