@@ -33,7 +33,7 @@ sub install_podman_when_needed {
     my @pkgs    = qw(podman);
     if (script_run("which podman") != 0) {
         if ($host_os eq 'centos') {
-            assert_script_run "dnf -y install @pkgs", timeout => 160;
+            assert_script_run "dnf -y install @pkgs", timeout => 660;
         }
         elsif ($host_os eq 'ubuntu') {
             my $version_id  = script_output('(. /etc/os-release && echo $VERSION_ID)');
@@ -192,13 +192,13 @@ sub test_container_image {
 
     die 'Argument $image not provided!'   unless $image;
     die 'Argument $runtime not provided!' unless $runtime;
-
+   
     # Pull the image if necessary
     if (script_run("$runtime image inspect --format='{{.RepoTags}}' $image | grep '$image'") != 0) {
         assert_script_run("$runtime pull $image", timeout => 300);
         assert_script_run("$runtime image inspect --format='{{.RepoTags}}' $image | grep '$image'");
     }
-
+    
     my $smoketest = "/bin/uname -r; /bin/echo \"Heartbeat from $image\"";
     assert_script_run("$runtime container create --name 'testing' '$image' /bin/sh -c '$smoketest'");
     assert_script_run("$runtime container start 'testing'");

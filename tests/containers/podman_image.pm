@@ -22,7 +22,7 @@ use version_utils qw(get_os_release check_os_release);
 
 sub run {
     my ($image_names, $stable_names) = get_suse_container_urls();
-    my ($running_version, $sp, $host_distri) = get_os_release;
+    my ($running_version, $sp, $host_distri) = get_os_release('suse', 'PRETTY_NAME');
     my $runtime = "podman";
     install_podman_when_needed($host_distri);
     allow_selected_insecure_registries(runtime => $runtime);

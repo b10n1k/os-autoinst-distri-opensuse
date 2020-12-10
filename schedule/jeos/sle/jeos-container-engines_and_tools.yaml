@@ -24,15 +24,15 @@ schedule:
     - jeos/record_machine_id
     - console/system_prepare
     - console/force_scheduled_tasks
-    - jeos/diskusage
-    - jeos/build_key
-    - console/suseconnect_scc
-    - console/consoletest_setup
-    - console/zypper_ref
-    - containers/podman
+    #- jeos/diskusage
+    #- jeos/build_key
+    #- console/suseconnect_scc
+    #- console/consoletest_setup
+    #- console/zypper_ref
+    #- containers/podman
     - containers/podman_image
-    - containers/docker
-    - containers/docker_runc
-    - containers/docker_image
-    - containers/containers_3rd_party
-    - containers/zypper_docker
+    #- containers/docker
+    #- containers/docker_runc
+    #- containers/docker_image
+    #- containers/containers_3rd_party
+    #- containers/zypper_docker

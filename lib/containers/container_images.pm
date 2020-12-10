@@ -108,7 +108,10 @@ sub test_opensuse_based_image {
 
     die 'Argument $image not provided!'   unless $image;
     die 'Argument $runtime not provided!' unless $runtime;
-
+    record_info "os release";
+    script_run "ls /etc/os-release";
+    script_run "cat /etc/os-release";
+    record_info "end os release ";
     my ($host_version,  $host_sp,  $host_id)  = get_os_release();
     my ($image_version, $image_sp, $image_id) = get_os_release("$runtime run --entrypoint '' $image");
 
