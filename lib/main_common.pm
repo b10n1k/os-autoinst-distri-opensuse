@@ -1082,7 +1082,6 @@ sub load_consoletests {
     loadtest "console/system_state";
     loadtest "console/prepare_test_data";
     loadtest "console/consoletest_setup";
-    loadtest 'console/integration_services' if is_hyperv || is_vmware;
 
     if (get_var('IBM_TESTS')) {
         # prepare tarballs for the testcase
