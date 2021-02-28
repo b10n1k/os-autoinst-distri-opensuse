@@ -1710,21 +1710,21 @@ sub load_extra_tests_docker {
     return unless @$image_names;
 
     if (is_leap('15.1+') || is_tumbleweed || is_sle("15-sp1+")) {
-        loadtest 'containers/podman';
-        loadtest "containers/podman_image" unless is_public_cloud;
+        #loadtest 'containers/podman';
+        #loadtest "containers/podman_image" unless is_public_cloud;
     }
 
     loadtest "containers/docker";
-    loadtest "containers/docker_runc";
-    loadtest "containers/containers_3rd_party";
+    #loadtest "containers/docker_runc";
+    #loadtest "containers/containers_3rd_party";
     if ((!is_public_cloud() && is_sle(">=12-sp3")) || is_opensuse()) {
         loadtest "containers/docker_image";
-        loadtest "containers/container_diff";
+        #loadtest "containers/container_diff";
     }
-    loadtest "containers/docker_compose" unless (is_sle('<15') || is_sle('>=15-sp2'));
-    loadtest 'containers/registry';
-    loadtest "containers/zypper_docker";
-    loadtest "containers/rootless_podman" unless is_sle('<15-SP2');
+    #loadtest "containers/docker_compose" unless (is_sle('<15') || is_sle('>=15-sp2'));
+    #loadtest 'containers/registry';
+    #loadtest "containers/zypper_docker";
+    #loadtest "containers/rootless_podman" unless is_sle('<15-SP2');
 }
 
 sub load_extra_tests_prepare {
