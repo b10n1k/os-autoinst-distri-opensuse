@@ -30,6 +30,7 @@ use version_utils 'is_sle';
 
 sub run {
     my ($self) = @_;
+    $self->select_serial_terminal();
     my ($image_names, $stable_names) = get_suse_container_urls();
     my ($running_version, $sp, $host_distri) = get_os_release;
     my $runtime = "podman";
