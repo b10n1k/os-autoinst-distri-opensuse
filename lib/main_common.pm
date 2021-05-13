@@ -1698,7 +1698,7 @@ sub load_extra_tests_docker {
         loadtest 'containers/podman';
         loadtest "containers/podman_image" unless is_public_cloud;
     }
-
+    loadtest "containers/docker_image";
     loadtest "containers/docker";
     loadtest "containers/docker_runc";
     loadtest "containers/containers_3rd_party";
