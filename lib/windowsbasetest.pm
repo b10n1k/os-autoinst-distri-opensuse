@@ -41,22 +41,71 @@ sub select_windows_in_grub2 {
 sub open_powershell_as_admin {
     my ($self, %args) = @_;
     send_key_until_needlematch 'quick-features-menu', 'super-x';
+    $args{admin} ? send_key 'shift-a' : send_key 'shift-i';
     wait_still_screen stilltime => 2, timeout => 15;
+    my @tags  = qw(user-acount-ctl-allow-make-changes powershell-as-admin-window user-acount-ctl-yes bsod);
     #If using windows server, and logged with Administrator, only open powershell
     if (get_var('QAM_WINDOWS_SERVER')) {
-        send_key 'shift-a';
+        $args{admin} ? send_key 'shift-a' : send_key 'shift-i';
         wait_screen_change { assert_and_click('window-max') };
         assert_screen 'windows_server_powershel_opened', 30;
     } else {
-        send_key_until_needlematch ['user-account-ctl-hidden', 'user-acount-ctl-allow-make-changes'], 'shift-a';
-        assert_screen(['user-account-ctl-hidden', 'user-acount-ctl-allow-make-changes'], 120);
-        mouse_set(500, 500);
-        assert_and_click 'user-account-ctl-hidden' if match_has_tag('user-account-ctl-hidden');
-        assert_and_click 'user-acount-ctl-yes';
-        mouse_hide();
-        wait_still_screen stilltime => 2, timeout => 15;
-        assert_screen 'powershell-as-admin-window', 240;
-        assert_and_click 'window-max';
+	while (1) {
+	    check_screen \@tags, 15;
+	    if (match_has_tag 'bsod') {
+		$self->wait_boot_windows;
+		send_key_until_needlematch 'quick-features-menu', 'super-x';
+		send_key 'shift-a';
+		wait_still_screen stilltime => 2, timeout => 15;
+		_setup_serial_device unless (exists $args{no_serial});
+		wait_still_screen;
+		
+		my ($day, $month, $year) = (localtime)[3,4,5];
+		my $datestr = sprintf "%04d-%02d-%02d", $year+1900, $month+1, $day;
+		my $logs = $datestr . '_Eventlogs100.txt'; 
+		$self->run_in_powershell(cmd => '$file = New-Item -Path "C:\\temp\\" -ItemType file -Name "' . $logs .'" -Force');
+		$self->run_in_powershell(cmd => 'Get-EventLog -LogName System -EntryType Error -Newest 100 | format-table -wrap | out-file ' . $logs , timeout => 60);
+		$self->run_in_powershell(cmd => 'Set-Location -Path c:\temp');
+		$self->run_in_powershell(cmd => 'wsl curl --form upload=\@' . $logs .' --form upname=' . $logs . ' ' . autoinst_url("/uploadlog/$logs"));
+		my $minidump_dir ='';
+		$self->run_in_powershell(cmd => 'Set-Location -Path c:\\');
+		if ($self->run_in_powershell(cmd => 'Test-Path -Path Window\\Minidump')) {
+		    $self->run_in_powershell(cmd => 'wsl tar -xf minidump.tar Window\\Minidump');
+		    $self->run_in_powershell(cmd => 'wsl curl --form upload=\@minidump.tar --form upname=minidump.tar '. autoinst_url("/uploadlog/minidump.tar"));
+		}
+		$self->run_in_powershell(cmd => 'wsl cd $HOME');
+		last;
+	    }
+	    if (match_has_tag 'user-acount-ctl-allow-make-changes') {
+		mouse_set(500, 500);
+		assert_and_click 'user-acount-ctl-allow-make-changes';
+                @tags = grep { $_ ne 'user-acount-ctl-allow-make-changes' } @tags;
+		next;
+	    }
+	    
+	    #assert_screen(['user-account-ctl-hidden', 'user-acount-ctl-allow-make-changes'], 120);
+	    # if (match_has_tag('user-account-ctl-hidden')) {
+	    # 	send_key_until_needlematch ['user-account-ctl-hidden'], 'shift-a';
+	    # 	mouse_set(500, 500);
+	    # 	assert_and_click 'user-account-ctl-hidden' ;
+	    # 	@tags = grep { $_ ne 'user-acount-ctl-hidden' } @tags;
+	    # 	next;
+	    # }
+	    # if (match_has_tag('user-account-ctl-yes')){
+	    # 	mouse_set(500, 500);
+	    # 	assert_and_click 'user-acount-ctl-yes';
+	    # 	@tags = grep { $_ ne 'user-acount-ctl-yes' } @tags;
+	    # 	mouse_hide();
+	    # 	wait_still_screen stilltime => 2, timeout => 15;
+	    # 	next;
+	    # }
+	    if (match_has_tag('powershell-as-admin-window')) {
+		assert_and_click 'window-max';
+		last;
+	    }
+	}
+        #assert_screen 'powershell-as-admin-window', 240;
+        
         sleep 3;
         _setup_serial_device unless (exists $args{no_serial});
     }
@@ -65,7 +114,13 @@ sub open_powershell_as_admin {
 sub run_in_powershell {
     my ($self, %args) = @_;
     my $rc_hash = testapi::hashed_string $args{cmd};
-
+    my $interrupted = 0;
+    local *got_bsod = sub {
+	$interrupted = 1;
+	$SIG{INT} = 'IGNORE';          # or 'IGNORE'
+	
+    };
+    eval {
     type_string $args{cmd}, max_interval => 125;
 
     if (exists $args{code} && (ref $args{code} eq 'CODE')) {
@@ -84,6 +139,26 @@ sub run_in_powershell {
           die "Expected string (${rc_hash}True) was not found on serial";
         send_key 'ctrl-l';
     }
+    }; #eval
+    if ($interrupted) {
+	$self->wait_boot_windows;
+	$self->open_powershell_as_admin();
+	my ($day, $month, $year) = (localtime)[3,4,5];
+	my $datestr = sprintf "%04d-%02d-%02d", $year+1900, $month+1, $day;
+	my $logs = $datestr . '_Eventlogs100.txt'; 
+	$self->run_in_powershell(cmd => '$file = New-Item -Path "C:\\temp\\" -ItemType file -Name "' . $logs .'" -Force');
+	$self->run_in_powershell(cmd => 'Get-EventLog -LogName System -EntryType Error -Newest 100 | format-table -wrap | out-file ' . $logs , timeout => 60);
+	$self->run_in_powershell(cmd => 'Set-Location -Path c:\temp');
+	$self->run_in_powershell(cmd => 'wsl curl --form upload=\@' . $logs .' --form upname=' . $logs . ' ' . autoinst_url("/uploadlog/$logs"));
+	my $minidump_dir ='';
+	$self->run_in_powershell(cmd => 'Set-Location -Path c:\\');
+	if ($self->run_in_powershell(cmd => 'Test-Path -Path Window\\Minidump')) {
+	    $self->run_in_powershell(cmd => 'wsl tar -xf minidump.tar Window\\Minidump');
+	    $self->run_in_powershell(cmd => 'wsl curl --form upload=\@minidump.tar --form upname=minidump.tar '. autoinst_url("/uploadlog/minidump.tar"));
+	}
+	$self->run_in_powershell(cmd => 'wsl cd $HOME');    
+    }
+    
 }
 
 sub reboot_or_shutdown {
