@@ -1693,13 +1693,14 @@ sub load_extra_tests_sdk {
 sub load_extra_tests_docker {
     my ($image_names, $stable_names) = get_suse_container_urls();
     return unless @$image_names;
+    loadtest "containers/docker";
     loadtest "containers/docker_image";
     if (is_leap('15.1+') || is_tumbleweed || is_sle("15-sp1+")) {
         loadtest 'containers/podman';
         loadtest "containers/podman_image" unless is_public_cloud;
     }
     
-    loadtest "containers/docker";
+    
     loadtest "containers/docker_runc";
     loadtest "containers/containers_3rd_party";
     if ((!is_public_cloud() && is_sle(">=12-sp3")) || is_opensuse()) {
