@@ -226,20 +226,18 @@ Die, if this is not the case.
 
 =cut
 sub integration_services_check_ip {
-    my ($keep_open) = shift // 1;
-
     # Host-side of Integration Services
     my $vmname = console('svirt')->name;
     my $ips_host_pov;
     if (check_var('VIRSH_VMM_FAMILY', 'hyperv')) {
         (undef, $ips_host_pov) = console('svirt')->run_cmd(
-'powershell -Command "Get-VM ' . $vmname . ' | Get-VMNetworkAdapter | Format-Table -HideTableHeaders IPAddresses"', keep_open => $keep_open, wantarray => 1);
+'powershell -Command "Get-VM ' . $vmname . ' | Get-VMNetworkAdapter | Format-Table -HideTableHeaders IPAddresses"', wantarray => 1);
     }
     elsif (check_var('VIRSH_VMM_FAMILY', 'vmware')) {
         (undef, $ips_host_pov) = console('svirt')->run_cmd(
             "set -x; vmid=\$(vim-cmd vmsvc/getallvms | awk '/$vmname/ { print \$1 }');" .
               "if [ \$vmid ]; then vim-cmd vmsvc/get.guest \$vmid | awk '/ipAddress/ {print \$3}' " .
-              "| head -n1 | sed -e 's/\"//g' | sed -e 's/,//g'; fi", domain => 'sshVMwareServer', keep_open => $keep_open, wantarray => 1);
+              "| head -n1 | sed -e 's/\"//g' | sed -e 's/,//g'; fi", domain => 'sshVMwareServer', wantarray => 1);
     }
     $ips_host_pov =~ m/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/;
     $ips_host_pov = $1;
@@ -260,8 +258,7 @@ are present and in working condition.
 
 =cut
 sub integration_services_check {
-    my ($keep_open) = shift // 1;
-    integration_services_check_ip(keep_open => $keep_open);
+    integration_services_check_ip;
     if (check_var('VIRSH_VMM_FAMILY', 'hyperv')) {
         # Guest-side of Integration Services
         assert_script_run('rpmquery hyper-v');
