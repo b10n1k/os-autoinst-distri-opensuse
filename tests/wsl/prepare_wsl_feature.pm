@@ -45,13 +45,14 @@ sub run {
     my $cert_file_path = 'C:\Users\Public\image-ca.cert';
 
     assert_screen 'windows-desktop';
-    $self->open_powershell_as_admin;
+    $self->open_powershell_as_admin(admin => 1);
     $self->run_in_powershell(
         cmd     => "Start-BitsTransfer -Source \\\\10.0.2.4\\qemu\\$wsl_appx_filename -Destination C:\\\\$wsl_appx_filename",
         timeout => 60
     );
     $self->run_in_powershell(cmd => $powershell_cmds->{enable_developer_mode});
-
+    #$self->run_in_powershell(cmd => 'New-ItemProperty -Path HKLM:Software\Microsoft\Windows\CurrentVersion\policies\system -Name EnableLUA -PropertyType DWord -Value 0 -Force');
+    
     if (is_sle('>=15-sp2') || is_opensuse) {
         $self->run_in_powershell(
             cmd => 'Invoke-WebRequest -Uri ' . data_url($certs->{get_required_var('DISTRI')}) . ' -O ' . $cert_file_path . ' -UseBasicParsing',

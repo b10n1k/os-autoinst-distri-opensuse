@@ -42,21 +42,56 @@ sub open_powershell_as_admin {
     my ($self, %args) = @_;
     send_key_until_needlematch 'quick-features-menu', 'super-x';
     wait_still_screen stilltime => 2, timeout => 15;
+    my @tags  = qw(user-acount-ctl-allow-make-changes powershell-as-admin-window bsod);
+    $args{admin} ? send_key 'shift-a' : send_key 'shift-i';
     #If using windows server, and logged with Administrator, only open powershell
     if (get_var('QAM_WINDOWS_SERVER')) {
-        send_key 'shift-a';
+        
         wait_screen_change { assert_and_click('window-max') };
         assert_screen 'windows_server_powershel_opened', 30;
     } else {
-        send_key_until_needlematch ['user-account-ctl-hidden', 'user-acount-ctl-allow-make-changes'], 'shift-a';
-        assert_screen(['user-account-ctl-hidden', 'user-acount-ctl-allow-make-changes'], 120);
-        mouse_set(500, 500);
-        assert_and_click 'user-account-ctl-hidden' if match_has_tag('user-account-ctl-hidden');
-        assert_and_click 'user-acount-ctl-yes';
-        mouse_hide();
-        wait_still_screen stilltime => 2, timeout => 15;
-        assert_screen 'powershell-as-admin-window', 240;
-        assert_and_click 'window-max';
+	#my $pwrshell = $args{admin} ? 'shift-a' : 'shift-i';
+        #send_key_until_needlematch ['user-acount-ctl-allow-make-changes'], $pwrshell;
+	#assert_screen(['user-acount-ctl-allow-make-changes'], 120);
+	#wait_screen_change { assert_and_click('window-max') };
+         
+	while (1) {
+	    check_screen \@tags, 15;
+	    if (match_has_tag 'bsod') {
+		$self->wait_boot_windows;
+		assert_and_click 'user-acount-ctl-yes';send_key_until_needlematch 'quick-features-menu', 'super-x';
+		mouse_hide();send_key 'shift-a';
+		wait_still_screen stilltime => 2, timeout => 15;wait_still_screen stilltime => 2, timeout => 15;
+		assert_screen 'powershell-as-admin-window', 240;_setup_serial_device unless (exists $args{no_serial});
+		assert_and_click 'window-max';wait_still_screen;
+
+		my ($day, $month, $year) = (localtime)[3,4,5];
+		my $datestr = sprintf "%04d-%02d-%02d", $year+1900, $month+1, $day;
+		my $logs = $datestr . '_Eventlogs100.txt';
+		$self->run_in_powershell(cmd => '$file = New-Item -Path "C:\\temp\\" -ItemType file -Name "' . $logs .'" -Force');
+		$self->run_in_powershell(cmd => 'Get-EventLog -LogName System -EntryType Error -Newest 100 | format-table -wrap | out-file ' . $logs , timeout => 60);
+		$self->run_in_powershell(cmd => 'Set-Location -Path c:\temp');
+		$self->run_in_powershell(cmd => 'wsl curl --form upload=\@' . $logs .' --form upname=' . $logs . ' ' . autoinst_url("/uploadlog/$logs"));
+		my $minidump_dir ='';
+		$self->run_in_powershell(cmd => 'Set-Location -Path c:\\');
+		if ($self->run_in_powershell(cmd => 'Test-Path -Path Window\\Minidump')) {
+		    $self->run_in_powershell(cmd => 'wsl tar -xf minidump.tar Window\\Minidump');
+		    $self->run_in_powershell(cmd => 'wsl curl --form upload=\@minidump.tar --form upname=minidump.tar '. autoinst_url("/uploadlog/minidump.tar"));
+		}
+		$self->run_in_powershell(cmd => 'wsl cd $HOME');
+		last;
+	    }
+	    if (match_has_tag 'user-acount-ctl-allow-make-changes') {
+		mouse_set(500, 500);
+		assert_and_click 'user-acount-ctl-allow-make-changes';
+		@tags = grep { $_ ne 'user-acount-ctl-allow-make-changes' } @tags;
+		next;
+	    }
+	    if (match_has_tag('powershell-as-admin-window')) {
+		assert_and_click 'window-max';
+		last;
+	    }
+	}
         sleep 3;
         _setup_serial_device unless (exists $args{no_serial});
     }
@@ -65,7 +100,7 @@ sub open_powershell_as_admin {
 sub run_in_powershell {
     my ($self, %args) = @_;
     my $rc_hash = testapi::hashed_string $args{cmd};
-
+    
     type_string $args{cmd}, max_interval => 125;
 
     if (exists $args{code} && (ref $args{code} eq 'CODE')) {
