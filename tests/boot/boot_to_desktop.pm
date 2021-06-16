@@ -51,7 +51,8 @@ sub run {
         wait_serial('Welcome to SUSE Linux', $timeout) || die "System did not boot in $timeout seconds.";
     }
     else {
-        $self->wait_boot(bootloader_time => $timeout, nologin => $nologin);
+	my $textmode = get_var('DESKTOP') eq "textmode";
+        $self->wait_boot(bootloader_time => $timeout, nologin => $nologin, textmode => $textmode);
     }
 }
 

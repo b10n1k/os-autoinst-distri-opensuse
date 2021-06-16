@@ -827,7 +827,7 @@ sub reconnect_s390 {
     }
 
     # on z/(K)VM we need to re-select a console
-    if ($textmode || check_var('DESKTOP', 'textmode')) {
+    if (1 || check_var('DESKTOP', 'textmode')) {
         select_console('root-console');
     }
     else {
@@ -1027,8 +1027,8 @@ sub wait_boot_past_bootloader {
         return;
     }
 
-    $self->handle_displaymanager_login(ready_time => $ready_time, nologin => $nologin) if (get_var("NOAUTOLOGIN") || get_var("XDMUSED") || $nologin || $forcenologin);
-    return                                                                             if $args{nologin};
+    #$self->handle_displaymanager_login(ready_time => $ready_time, nologin => $nologin) if (get_var("NOAUTOLOGIN") || get_var("XDMUSED") || $nologin || $forcenologin);
+    return                                                                            # if $args{nologin};
 
     my @tags = qw(generic-desktop emergency-shell emergency-mode);
     push(@tags, 'opensuse-welcome') if opensuse_welcome_applicable;
