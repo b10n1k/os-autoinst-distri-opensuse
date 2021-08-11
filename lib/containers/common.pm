@@ -117,6 +117,10 @@ sub install_docker_when_needed {
 sub install_buildah_when_needed {
     my $host_os = shift;
     my @pkgs    = qw(buildah);
+    if (script_run("rpm -qi cni") != 0) {
+        push(@pkgs, 'cni');
+        record_soft_failure "bsc#1189322 - buildah installation is missing cni";
+    }
     if (script_run("which buildah") != 0) {
         # We may run openSUSE with DISTRI=sle and opensuse doesn't have SUSEConnect
         activate_containers_module if $host_os =~ 'sles';
