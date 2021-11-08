@@ -48,6 +48,7 @@ sub run {
 
     # keep the current snapshot id and compare it to the logged one
     my $initial_id = get_btrfsid;
+    
     compare_id;
 
     # update rebootmgr.sh to force health-checker to fail
@@ -56,13 +57,14 @@ sub run {
     # check that the changes applied and we have a new snapshot
     my $current_id = get_btrfsid;
     my $logged_id = get_loggedid;
+    sleep;
     die "The current snapshot is not ahead of the logged one" unless $current_id > $logged_id;
 
     # Automated rollback shows grub menu twice (timeout disabled)
     process_reboot(automated_rollback => 1);
 
     my $final_id = get_btrfsid;
-    die "health-checker does not rollback to the correct snapshot" unless $initial_id == $final_id;
+    die "health-checker does not rollback to the correct snapshot $initial_id $final_id" unless $initial_id == $final_id;
 
     compare_id;
 
