@@ -554,6 +554,7 @@ sub load_system_role_tests {
     }
 }
 sub load_jeos_tests {
+    return if (get_var('CONTAINER_RUNTIME', 0) && (is_leap && is_ppc64le) || check_var('CONTAINERS_NO_SUSE_OS',1));
     if ((is_arm || is_aarch64) && is_opensuse()) {
         # Enable jeos-firstboot, due to boo#1020019
         load_boot_tests();
