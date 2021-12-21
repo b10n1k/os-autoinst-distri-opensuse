@@ -30,7 +30,7 @@ my $JUNIT_FILE = '/opt/output.xml';
 
 sub log_end {
     my $file = shift;
-    my $cmd = "echo '\nTest run complete' >> $file";
+    my $cmd = qq(echo -e "\nTest run complete" | tee -a $file);
     send_key 'ret';
     assert_script_run($cmd);
 }
@@ -77,7 +77,7 @@ sub run {
     my $script_output = script_output("cat $STATUS_LOG", 600);
     my $tc_result = analyzeResult($script_output);
     my $xml = generateXML($tc_result);
-    assert_script_run("echo \'$xml\' > $JUNIT_FILE", 7200);
+    assert_script_run(qq/echo -e '$xml' > $JUNIT_FILE/, 7200);
     parse_junit_log($JUNIT_FILE);
 }
 
