@@ -79,6 +79,7 @@ sub ibtest_master {
 
     # do all test preparations and setup
     zypper_ar(get_required_var('DEVEL_TOOLS_REPO'), no_gpg_check => 1);
+    sleep;
     zypper_call('in git-core twopence-shell-client bc iputils python', exitcode => [0, 65, 107]);
 
     # pull in the testsuite
@@ -87,6 +88,7 @@ sub ibtest_master {
     # wait until the two machines under test are ready setting up their local things
     assert_script_run('cd hpc-testing');
     barrier_wait('IBTEST_BEGIN');
+    sleep;
     assert_script_run("./ib-test.sh $args $master $slave", $timeout);
     script_run('tr -cd \'\11\12\15\40-\176\' < results/TEST-ib-test.xml > /tmp/results.xml');
     parse_extra_log('XUnit', '/tmp/results.xml');
