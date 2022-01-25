@@ -12,6 +12,7 @@ vars:
     IBTEST_IP1: 10.162.2.93
     IBTEST_IP2: 10.162.2.94
     IBTEST_ROLE: IBTEST_MASTER
+    IBTEST_TIMEOUT: 7200
     IPXE: 1
     IPXE_HTTPSERVER: http://baremetal-support.qa.suse.de:8080
     IPXE_CONSOLE: ttyS1,115200

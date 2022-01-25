@@ -107,7 +107,7 @@ sub run {
     $slave = get_required_var('IBTEST_IP2');
 
     $self->select_serial_terminal;
-
+    script_run 'unname -r';
     # unload firewall. MPI- and libfabric-tests require too many open ports
     systemctl("stop " . opensusebasetest::firewall);
 
