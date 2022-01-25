@@ -70,8 +70,8 @@ sub ibtest_master {
     if ($phase ne '') {
         $args = $args . "--phase $phase ";
     } else {
-        $args = $args - "--start-phase $start_phase " if $start_phase;
-        $args = $args - "--end-phase $end_phase " if $end_phase;
+        $args = $args . "--start-phase $start_phase " if $start_phase;
+        $args = $args . "--end-phase $end_phase " if $end_phase;
     }
 
     $args = $args . "--mpi $mpi_flavours " if $mpi_flavours;
@@ -124,6 +124,7 @@ sub run {
 
 
     if ($role eq 'IBTEST_MASTER') {
+	sleep;
         $self->ibtest_master;
     }
     elsif ($role eq 'IBTEST_SLAVE') {
@@ -137,8 +138,8 @@ sub post_fail_hook {
     my $self = shift;
     my $slave = get_required_var('IBTEST_IP2');
     my $role = get_required_var('IBTEST_ROLE');
-
     if ($role eq 'IBTEST_MASTER') {
+	#sleep;
         script_run('tr -cd \'\11\12\15\40-\176\' < results/TEST-ib-test.xml > /tmp/results.xml');
         parse_extra_log('XUnit', '/tmp/results.xml');
     }
