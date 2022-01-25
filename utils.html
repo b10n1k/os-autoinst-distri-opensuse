@@ -38,6 +38,7 @@
       <li><a href="#ssh_fully_patch_system">ssh_fully_patch_system</a></li>
       <li><a href="#minimal_patch_system">minimal_patch_system</a></li>
       <li><a href="#zypper_search">zypper_search</a></li>
+      <li><a href="#set_zypper_lock_timeout">set_zypper_lock_timeout</a></li>
       <li><a href="#workaround_type_encrypted_passphrase">workaround_type_encrypted_passphrase</a></li>
       <li><a href="#is_boot_encrypted">is_boot_encrypted</a></li>
       <li><a href="#is_bridged_networking">is_bridged_networking</a></li>
@@ -64,6 +65,7 @@
       <li><a href="#exec_and_insert_password">exec_and_insert_password</a></li>
       <li><a href="#shorten_url">shorten_url</a></li>
       <li><a href="#handle_login_not_found">_handle_login_not_found</a></li>
+      <li><a href="#handle_firewall">_handle_firewall</a></li>
       <li><a href="#reconnect_mgmt_console">reconnect_mgmt_console</a></li>
       <li><a href="#show_tasks_in_blocked_state">show_tasks_in_blocked_state</a></li>
       <li><a href="#show_oom_info">show_oom_info</a></li>
@@ -79,6 +81,8 @@
       <li><a href="#install_patterns-install_patterns">install_patterns install_patterns();</a></li>
       <li><a href="#permit_root_ssh-permit_root_ssh">permit_root_ssh permit_root_ssh();</a></li>
       <li><a href="#permit_root_ssh_in_sol-permit_root_ssh_in_sol">permit_root_ssh_in_sol permit_root_ssh_in_sol();</a></li>
+      <li><a href="#cleanup_disk_space-cleanup_disk_space">cleanup_disk_space cleanup_disk_space();</a></li>
+      <li><a href="#package_upgrade_check-package_upgrade_check">package_upgrade_check package_upgrade_check();</a></li>
     </ul>
   </li>
 </ul><h1>lib/utils.pm</h1>
@@ -281,6 +285,12 @@
 
 <p>Run zypper search with given command line arguments and parse the output into an array of hashes.</p>
 
+<h2 id="set_zypper_lock_timeout">set_zypper_lock_timeout</h2>
+
+<pre><code> set_zypper_lock_timeout($timeout);</code></pre>
+
+<p>Set how many seconds zypper will wait for other processes to release the system lock. If this function is called without arguments, it&#39;ll set timeout to 300 seconds.</p>
+
 <h2 id="workaround_type_encrypted_passphrase">workaround_type_encrypted_passphrase</h2>
 
 <pre><code> workaround_type_encrypted_passphrase();</code></pre>
@@ -318,6 +328,8 @@
 <pre><code> assert_and_click_until_screen_change($mustmatch [, $wait_change [, $repeat ]]);</code></pre>
 
 <p>This will repeat <code>assert_and_click($mustmatch)</code> up to <code>$repeat</code> times, trying againg if the screen has not changed within <code>$wait_change</code> seconds after the <code>assert_and_click</code>. Returns the number of attempts made. <code>$wait_change</code> defaults to 2 (seconds) and <code>$repeat</code> defaults to 3.</p>
+
+<p>You can check if the screen changed by using an explicit repeat and comparing it to the returned number of attempts. If the value equals repeat the screen didn&#39;t change.</p>
 
 <h2 id="handle_livecd_reboot_failure">handle_livecd_reboot_failure</h2>
 
@@ -457,6 +469,12 @@
 
 <p>Internal helper function used by <code>reconnect_mgmt_console</code>.</p>
 
+<h2 id="handle_firewall">_handle_firewall</h2>
+
+<pre><code> _handle_firewall();</code></pre>
+
+<p>Internal helper function used by <code>reconnect_mgmt_console</code>.</p>
+
 <h2 id="reconnect_mgmt_console">reconnect_mgmt_console</h2>
 
 <pre><code> reconnect_mgmt_console([timeout =&gt; $timeout]);</code></pre>
@@ -588,6 +606,16 @@
 <h2 id="permit_root_ssh_in_sol-permit_root_ssh_in_sol">permit_root_ssh_in_sol permit_root_ssh_in_sol();</h2>
 
 <p>for ipmi backend, PermitRootLogin has to be set in sol console however, assert_script_run and script_run is not stable in sole console enter_cmd or type_string are acceptable</p>
+
+<h2 id="cleanup_disk_space-cleanup_disk_space">cleanup_disk_space cleanup_disk_space();</h2>
+
+<p>In fully_patch_system and minimal_patch_system, we&#39;ll create so many snapshots. which will cost large part of the disk space. We need to delete these snapshots before the migration only if the available space is less than DISK_LOW_WATERMARK.</p>
+
+<h2 id="package_upgrade_check-package_upgrade_check">package_upgrade_check package_upgrade_check();</h2>
+
+<p>This function is used for checking if the package is upgraded to the required version</p>
+
+<p>Sample config of parameter of the function below: my $pkg_list = {ibmtss =&gt; &#39;1.6.0&#39;}; here, &#39;libmtss&#39; is the package name, and &#39;1.6.0&#39; is target version which needs to be upgrated to</p>
 
 
 </body>
