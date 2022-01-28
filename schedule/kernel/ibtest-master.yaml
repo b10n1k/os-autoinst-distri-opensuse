@@ -15,31 +15,9 @@ vars:
     IPXE: 1
     IPXE_HTTPSERVER: http://baremetal-support.qa.suse.de:8080
     IPXE_CONSOLE: ttyS1,115200
-    PACKAGES: rdma-core,rdma-ndd
-    PATTERNS: base,minimal
-    SCC_ADDONS: sdk
+    BOOT_HDD_IMAGE: 1
+    DVD: 1
 schedule:
     - kernel/ibtests_barriers
-    - installation/ipxe_install
-    - installation/welcome
-    - installation/accept_license
-    - installation/scc_registration
-    - installation/addon_products_sle
-    - installation/system_role
-    - installation/partitioning
-    - installation/partitioning_finish
-    - installation/installer_timezone
-    - installation/user_settings
-    - installation/user_settings_root
-    - installation/resolve_dependency_issues
-    - installation/select_packages
-    - installation/installation_overview
-    - installation/disable_grub_graphics
-    - installation/disable_grub_timeout
-    - installation/start_install
-    - installation/await_install
-    - installation/logs_from_installation_system
-    - installation/reboot_after_installation
-    - installation/handle_reboot
-    - installation/first_boot
+    - installation/bootloader_start
     - kernel/ibtests
