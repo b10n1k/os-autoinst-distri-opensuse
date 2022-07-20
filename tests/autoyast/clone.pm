@@ -16,6 +16,8 @@ use testapi;
 
 sub run {
     my $self = shift;
+    # doesnt work after patchand reboot
+    script_run 'zypper -n in autoyast2', 1000;
     assert_script_run 'rm -f /root/autoinst.xml';
     my $module_name = y2_module_consoletest::yast2_console_exec(yast2_module => 'clone_system', yast2_opts => '--ncurses');
     if (check_screen 'autoyast2-install-accept', 10) {

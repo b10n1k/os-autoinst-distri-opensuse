@@ -51,6 +51,7 @@ schedule:
   - installation/first_boot
   - console/hostname
   - console/system_prepare
+  - autoyast/clone
   - '{{patch_and_reboot_inci}}'
   - console/force_scheduled_tasks
   - shutdown/grub_set_bootargs
