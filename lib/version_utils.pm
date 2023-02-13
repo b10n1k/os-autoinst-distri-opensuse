@@ -860,7 +860,13 @@ sub get_version_id {
     $args{verid_file} //= '/etc/os-release';
 
     my $cmd = "cat $args{verid_file} | grep VERSION_ID | grep -Eo \"[[:digit:]]{1,}\\.[[:digit:]]{1,}\"";
-    $cmd = "ssh root\@$args{dst_machine} " . "$cmd" if ($args{dst_machine} ne 'localhost');
+    if ($args{dst_machine} ne 'localhost'){
+	if ($args{dst_machine} =~ /^(\w+)@.+/) {
+	    $cmd = "ssh $args{dst_machine} " . "$cmd" ;
+	} else {
+	    $cmd = "ssh root\@$args{dst_machine} " . "$cmd";
+	}
+    }
     return script_output($cmd);
 }
 

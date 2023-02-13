@@ -222,7 +222,6 @@ sub ssh_add_suseconnect_product {
     $timeout //= 300;
     $retries //= 3;
     $delay //= 10;
-
     script_retry("ssh $remote sudo SUSEConnect -p $name/$version/$arch $params", delay => $delay, retry => $retries, timeout => $timeout);
 }
 

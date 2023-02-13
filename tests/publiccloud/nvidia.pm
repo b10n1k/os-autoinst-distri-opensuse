@@ -17,13 +17,17 @@ use publiccloud::utils;
 sub run {
     my ($self, $args) = @_;
     script_run("cat /etc/os-release");
-    zypper_call('--gpg-auto-import-keys addrepo -p 90 ' . get_required_var('NVIDIA_REPO') . ' nvidia_repo');
-    zypper_call '--gpg-auto-import-keys ref';
-    zypper_call("in nvidia-open-gfxG06-kmp-default ", quiet => 1);
+    if (get_var('NVIDIA_REPO')) {
+	zypper_call('--gpg-auto-import-keys addrepo -p 90 ' . get_required_var('NVIDIA_REPO') . ' nvidia_repo');
+	zypper_call '--gpg-auto-import-keys ref';
+    }
+    else { return; }
+    #sleep;
+    zypper_call("in nvidia-open-driver-G06-signed-kmp-default kernel-firmware-nvidia-gsp-G06 ", quiet => 1);
     $args->{my_instance}->softreboot(timeout => get_var('PUBLIC_CLOUD_REBOOT_TIMEOUT', 600));
 
     validate_script_output("hwinfo --gfxcard", sub { /nVidia.*Tesla T4/mg });    # depends on terraform setup
-    assert_script_run("LD_LIBRARY_PATH=/usr/lib/kernel-firmware-nvidia-gsp /usr/lib/kernel-firmware-nvidia-gsp/nvidia-smi --query");
+    assert_script_run("LD_LIBRARY_PATH=/usr/lib/kernel-firmware-nvidia-gsp-G06 /usr/lib/kernel-firmware-nvidia-gsp-G06/nvidia-smi --query");
     assert_script_run("SUSEConnect --status-text", 300);
 }
 
