@@ -115,6 +115,7 @@ sub run ($self) {
             die("echo $return - not expected errorcode");
         }
     } else {
+	sleep;
         assert_script_run($mpirun_s->all_nodes("$exports_path{'bin'}/$mpi_bin"), timeout => 120);
     }
     barrier_wait('MPI_RUN_TEST');
