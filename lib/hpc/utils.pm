@@ -44,7 +44,7 @@ Returns an array with the mpi compiler and the source code located in /data/hpc
 sub get_mpi_src {
     my $lib = get_var('HPC_LIB', '');
     #return ('mpicc', 'simple_mpi.c') if ($lib eq '');
-    return ('mpic++', 'sample_cplusplus.cpp') if ($lib eq '');
+    return ('mpic++', 'sample_cplusplus.cpp') if ($lib eq 'c++');
     # not a boost lib. but using it we can distiguish between `.c` and `.cpp` source code
     return ('mpic++', 'sample_boost.cpp') if ($lib eq 'boost');
     return ('', 'sample_scipy.py') if ($lib eq 'scipy');
