@@ -68,6 +68,7 @@ sub run ($self) {
     type_string('pkill -u root') unless $user_virtio_fixed;
     select_user_serial_terminal($prompt);
     # load mpi after all the relogins
+    sleep;
     assert_script_run "module load gnu $mpi";
     script_run "module av";
 
@@ -94,7 +95,6 @@ sub run ($self) {
             assert_script_run($mpirun_s->single_node("$exports_path{'bin'}/$mpi_bin"), timeout => 120);
         }
     }
-
     record_info('INFO', 'Run MPI over several nodes');
     if ($mpi eq 'mvapich2') {
         # we do not support ethernet with mvapich2
