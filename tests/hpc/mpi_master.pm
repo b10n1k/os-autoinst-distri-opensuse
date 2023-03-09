@@ -124,7 +124,7 @@ sub run ($self) {
     my $imb_version = script_output("rpm -q --queryformat '%{VERSION}' imb-gnu-$mpi-hpc");
 
     if ($mpi eq 'mvapich2') {
-        my $return = script_run("set -o pipefail; mpirun -np 4 /usr/lib/hpc/gnu7/$mpi/imb/$imb_version/bin/IMB-MPI1 PingPong |& tee /tmp/mpi_bin.log", timeout => 120);
+        my $return = script_run("set -o pipefail; mpirun -np 4 --host slave-node00,slave-node01 /usr/lib/hpc/gnu7/$mpi/imb/$imb_version/bin/IMB-MPI1 PingPong |& tee /tmp/mpi_bin.log", timeout => 120);
         if ($return == 136) {
             if (script_run('grep \'Caught error: Floating point exception (signal 8)\' /tmp/mpi_bin.log') == 0) {
                 record_soft_failure('bsc#1175679 Floating point exception should be fixed on mvapich2/2.3.4');
@@ -136,7 +136,7 @@ sub run ($self) {
     } else {
         record_info 'testing IMB', 'Run all IMB-MPI1 components';
         # Run IMB-MPI1 without args to run the whole set of testings. Mind the timeout if you do so
-        assert_script_run("mpirun -np 4 /usr/lib/hpc/gnu7/$mpi/imb/$imb_version/bin/IMB-MPI1 PingPong");
+        assert_script_run("mpirun -np 4 --host slave-node00,slave-node01 /usr/lib/hpc/gnu7/$mpi/imb/$imb_version/bin/IMB-MPI1 PingPong");
     }
     barrier_wait('IBM_TEST_DONE');
     record_info 'IBM_TEST_DONE', strftime("\%H:\%M:\%S", localtime);
