@@ -37,7 +37,10 @@ sub run ($self) {
     my $prompt = $user_virtio_fixed ? $testapi::username . '@' . get_required_var('HOSTNAME') . ':~> ' : undef;
 
     script_run("sudo -u $testapi::username mkdir -p $exports_path{bin}");
-    assert_script_run("zypper ar --refresh -p 90 --no-gpgcheck '' 'Staging_$stage'");
+    #assert_script_run("zypper ar --refresh -p 90 --no-gpgcheck  nicolas");
+    #assert_script_run("zypper  --gpg-auto-import-keys  ref");
+    zypper_ar("http://download.suse.de/ibs/home:/NMorey:/branches:/SUSE:/SLE-15-SP1:/Update/standard/home:NMorey:branches:SUSE:SLE-15-SP1:Update.repo", no_gpg_check => 1, priority => 49);
+    zypper_call("ref");
     zypper_call("in $mpi-gnu-hpc $mpi-gnu-hpc-devel python3-devel imb-gnu-$mpi-hpc");
 
     my $need_restart = $self->setup_scientific_module();
