@@ -37,6 +37,7 @@ sub run ($self) {
     my $prompt = $user_virtio_fixed ? $testapi::username . '@' . get_required_var('HOSTNAME') . ':~> ' : undef;
 
     script_run("sudo -u $testapi::username mkdir -p $exports_path{bin}");
+    assert_script_run("zypper ar --refresh -p 90 --no-gpgcheck '' 'Staging_$stage'");
     zypper_call("in $mpi-gnu-hpc $mpi-gnu-hpc-devel python3-devel imb-gnu-$mpi-hpc");
 
     my $need_restart = $self->setup_scientific_module();
