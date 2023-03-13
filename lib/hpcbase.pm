@@ -352,13 +352,16 @@ downloading and installing all bits required for whatever package or compiler.
 sub prepare_spack_env {
     my ($self, $mpi) = @_;
     $mpi //= 'mpich';
-    zypper_call "in spack $mpi-gnu-hpc $mpi-gnu-hpc-devel";
+    zypper_call "in spack $mpi-gnu-hpc $mpi-gnu-hpc-devel", timeout => 980;
     type_string('pkill -u root');    # this kills sshd
-    select_serial_terminal(0);
+    my $user_virtio_fixed = isotovideo::get_version() >= 35;
+    my $prompt = $user_virtio_fixed ? $testapi::username . '@' . get_required_var('HOSTNAME') . ':~> ' : undef;
+    type_string('pkill -u root', lf => 1);
+    select_serial_terminal($prompt);
     assert_script_run 'module load gnu $mpi';    ## TODO
     assert_script_run 'source /usr/share/spack/setup-env.sh';
     record_info 'spack', script_output 'zypper -q info spack';
-    record_info 'boost spec', script_output('spack spec boost', timeout => 360);
+    record_info 'boost spec', script_output('spack spec boost', timeout => 580);
     assert_script_run "spack install boost+mpi^$mpi", timeout => 12000;
     assert_script_run 'spack load boost';
 }
