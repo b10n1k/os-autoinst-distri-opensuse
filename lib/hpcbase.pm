@@ -351,7 +351,7 @@ downloading and installing all bits required for whatever package or compiler.
 
 sub prepare_spack_env {
     my ($self, $mpi) = @_;
-    $mpi //= 'mpich';sleep;
+    $mpi //= 'mpich';
     zypper_call "in spack $mpi-gnu-hpc $mpi-gnu-hpc-devel";
     type_string('pkill -u root');    # this kills sshd
     select_serial_terminal(0);
