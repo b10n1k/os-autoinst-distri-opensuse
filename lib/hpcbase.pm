@@ -96,7 +96,6 @@ sub post_run_hook {
     my ($self) = @_;
     select_console('log-console');
     my $hname = get_var('HOSTNAME', 'susetest');
-    sleep;
     foreach (keys %log_files) {
         save_and_upload_log($log_files{$_}{cmd}, "/tmp/$hname-" . $log_files{$_}{logfile}, {screenshot => 1});
     }

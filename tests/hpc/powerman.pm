@@ -81,6 +81,7 @@ EOF
         $rt = validate_script_output("powerman -c \$(hostname)", sub { /.*cannot be handled by power control device.*/ }, proceed_on_failure => 1);
         test_case('powerman cycle', 'powerman dev doesnt support cycle command', $rt);
     }
+    sleep;
 }
 
 sub post_run_hook ($self) {
