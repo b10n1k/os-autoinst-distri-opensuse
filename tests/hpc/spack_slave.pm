@@ -19,6 +19,7 @@ sub run ($self) {
     $self->mount_nfs_exports(\%exports_path);
     $self->prepare_spack_env($mpi);
     ## TODO: Restart only when is needed, otherwise include a softfail
+    record_info "ssh status", script_output('systemctl status sshd');
     record_info('ssh restart', 'Ensure sshd service is running before mpirun');
     type_string "sudo systemctl restart sshd\n";
     sleep 3;
