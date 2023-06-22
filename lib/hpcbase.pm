@@ -384,7 +384,7 @@ sub prepare_spack_env {
 
     record_info 'spack', script_output 'zypper -q info spack';
     record_info "$mpi spec", script_output("spack spec $mpi", timeout => 600);
-    assert_script_run "spack install $mpi", timeout => 12000;
+    assert_script_run "spack install $mpi", timeout => 13000;
 
 }
 
