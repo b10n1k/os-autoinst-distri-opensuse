@@ -22,10 +22,6 @@ sub run ($self) {
     my @cluster_nodes = $self->cluster_names();
     my $cluster_nodes = join(',', @cluster_nodes);
     my %exports_path = (bin => '/home/bernhard/bin');
-    $self->setup_nfs_server(\%exports_path);
-    $self->prepare_spack_env($mpi);
-
-    record_info 'spack info', script_output "spack info $mpi";
     barrier_wait('CLUSTER_PROVISIONED');
 
     ## all nodes should be able to ssh to each other, as MPIs requires so

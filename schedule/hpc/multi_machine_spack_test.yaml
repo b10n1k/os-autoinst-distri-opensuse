@@ -12,8 +12,12 @@ conditional_schedule:
   hpctest:
     HPC:
       mpi_master:
+        - hpc/setup_nfs
+        - hpc/setup_spack_env
         - hpc/spack_master
       mpi_slave:
+        - hpc/nfs_client
+        - hpc/setup_spack_env
         - hpc/spack_slave
 schedule:
   - '{{bootmenu}}'

@@ -14,10 +14,6 @@ use Utils::Logging 'tar_and_upload_log';
 
 sub run ($self) {
     my $mpi = $self->get_mpi();
-    my %exports_path = (bin => '/home/bernhard/bin');
-
-    $self->mount_nfs_exports(\%exports_path);
-    $self->prepare_spack_env($mpi);
     ## TODO: Restart only when is needed, otherwise include a softfail
     record_info('ssh restart', 'Ensure sshd service is running before mpirun');
     type_string "sudo systemctl restart sshd\n";
