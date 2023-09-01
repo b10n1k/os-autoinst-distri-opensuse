@@ -429,7 +429,7 @@ sub run ($self) {
     barrier_wait('CLUSTER_PROVISIONED');
     $self->prepare_user_and_group();
     $self->generate_and_distribute_ssh();
-
+    sleep;
     # provision HPC cluster, so the proper rpms are installed,
     # munge key is distributed to all nodes, so is slurm.conf
     # and proper services are enabled and started
