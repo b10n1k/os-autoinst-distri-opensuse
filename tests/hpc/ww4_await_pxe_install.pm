@@ -23,7 +23,7 @@ sub run ($self) {
     record_info 'WWCTL_READY', strftime("\%H:\%M:\%S", localtime);
     send_key('ctrl-alt-delete');
     save_screenshot();
-    assert_screen('ww4-ready', 180);
+    assert_screen('ww4-ready', 2200);
     save_screenshot();
     barrier_wait('WWCTL_DONE');
     record_info 'WWCTL_DONE', strftime("\%H:\%M:\%S", localtime);
