@@ -19,7 +19,7 @@ sub run ($self) {
     select_serial_terminal();
     $self->prepare_user_and_group();
     my $slurm_pkg = get_slurm_version(get_var('SLURM_VERSION', ''));
-
+    sleep;
     # Install slurm
     # $slurm_pkg-munge is installed explicitly since slurm_23_02
     zypper_call("in $slurm_pkg-node $slurm_pkg-munge");
