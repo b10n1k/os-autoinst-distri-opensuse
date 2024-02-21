@@ -127,9 +127,10 @@ sub configure_static_dns {
     my $servers = join(" ", @{$conf->{nameserver}});
 
     if ($is_nm) {
-        $nm_id = script_output('nmcli -t -f NAME c | grep -v ^lo: | head -n 1') unless ($nm_id);
-
-        assert_script_run "nmcli connection modify '$nm_id' ipv4.dns '$servers'";
+	record_info "nmcli out", script_output("nmcli -t -f NAME c | grep -v '^lo'");
+        $nm_id = script_output("nmcli -t -f NAME c | grep -v '^lo' | head -n 1") unless ($nm_id);
+        record_info "val", "$nm_id";
+        assert_script_run qq{nmcli connection modify '$nm_id' ipv4.dns '$servers'};
     } else {
         assert_script_run("sed -i -e 's|^NETCONFIG_DNS_STATIC_SERVERS=.*|NETCONFIG_DNS_STATIC_SERVERS=\"$servers\"|' /etc/sysconfig/network/config");
         assert_script_run("netconfig -f update");
